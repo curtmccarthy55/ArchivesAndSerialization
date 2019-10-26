@@ -143,10 +143,6 @@ class CommitsViewController: UIViewController {
     func fetchRepositoryData() -> Data? {
         return ArchiveService.shared.fetchRepository()
     }
-    
-    func fetchCommitData() -> Data {
-        return ArchiveService.shared.fetchCommits()
-    }
 
     func saveData() {
 //        ArchiveService.shared.saveCommits(commits)

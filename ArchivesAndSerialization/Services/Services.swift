@@ -32,7 +32,7 @@ class ArchiveService {
     }
     
     //MARK: - Read
-    func readObjectFromRelativePath(_ path: String) -> Any? {
+    func oldReadObjectFromRelativePath(_ path: String) -> Any? {
         let absolutePath = absolutePathFromRelativePath(path)
         
         var object: Any?
@@ -42,7 +42,7 @@ class ArchiveService {
         return object
     }
     
-    func oldReadObjectFromRelativePath(_ path: String) -> Data? {
+    func readObjectFromRelativePath(_ path: String) -> Data? {
         let absolutePath = absolutePathFromRelativePath(path)
         
         var data: Data?
@@ -53,79 +53,45 @@ class ArchiveService {
         return data
     }
     
+    func fetchRepository() -> Data? {
+           guard let data = readObjectFromRelativePath(reposPath) else {
+               return nil
+           }
+           return data
+           
+           /*
+           let unarchived = readObjectFromRelativePath(reposPath)
+           
+           if let data = unarchived as? Data {
+               return data
+           } else {
+               let encoder = JSONEncoder()
+               do {
+                   let data = try encoder.encode(Repository())
+                   return data
+               }
+               catch {
+                   print("failed to return data for a Repository instance.")
+                   return nil
+               }
+           }
+    */
+       }
+    
     func fetchCommit(withID id: String) -> Data {
-        /*
         guard let data = readObjectFromRelativePath(commitsPath + "/" + id) else {
             return jsons.randomElement()!
         }
         return data
- */
         
-        // replacing with above
+        /* replacing with above
         let unarchived = readObjectFromRelativePath(commitsPath + "/" + id)
         
         if let data = unarchived as? Data {
             return data
         }
         return jsons.randomElement()!
- 
-    }
-    
-    func fetchCommits() -> Data {
-        /*
-        guard let data = readObjectFromRelativePath(commitsPath) else {
-            return  jsons.randomElement()!
-        }
-        return data
-        */
-        
-        // replacing with above.
-        let unarchived = readObjectFromRelativePath(commitsPath)
-        
-        if let data = unarchived as? Data {
-            return data
-            /*
-            do {
-                let decoder = JSONDecoder()
-                let commits = try decoder.decode([GitHubCommit].self, from: data)
-                print("commit decoding succeeded.")
-                return commits
-            }
-            catch {
-                print("commit decoding failed")
-                return jsons.randomElement()!
-            }
-             */
-        }
-        return jsons.randomElement()!
- 
-    }
-    
-    func fetchRepository() -> Data? {
-        /*
-        guard let data = readObjectFromRelativePath(reposPath) else {
-            return nil
-        }
-        return data
-        */
-        
-        //
-        let unarchived = readObjectFromRelativePath(reposPath)
-        
-        if let data = unarchived as? Data {
-            return data
-        } else {
-            let encoder = JSONEncoder()
-            do {
-                let data = try encoder.encode(Repository())
-                return data
-            }
-            catch {
-                print("failed to return data for a Repository instance.")
-                return nil
-            }
-        }
- 
+ */
     }
     
     //MARK: - Write
