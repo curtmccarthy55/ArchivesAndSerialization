@@ -14,9 +14,9 @@
             filePath = "ArchivesAndSerialization/Services/Services.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "178"
-            endingLineNumber = "178"
-            landmarkName = "saveCommits(_:)"
+            startingLineNumber = "145"
+            endingLineNumber = "145"
+            landmarkName = "verifyCommitDirectory()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -30,8 +30,8 @@
             filePath = "ArchivesAndSerialization/ViewControllers/CommitsViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "153"
-            endingLineNumber = "153"
+            startingLineNumber = "149"
+            endingLineNumber = "149"
             landmarkName = "saveData()"
             landmarkType = "7">
          </BreakpointContent>
@@ -46,9 +46,9 @@
             filePath = "ArchivesAndSerialization/Services/Services.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "133"
-            endingLineNumber = "133"
-            landmarkName = "saveRepository(_:)"
+            startingLineNumber = "96"
+            endingLineNumber = "96"
+            landmarkName = "fetchCommit(withID:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -62,9 +62,9 @@
             filePath = "ArchivesAndSerialization/Services/Services.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "164"
-            endingLineNumber = "164"
-            landmarkName = "saveCommit(_:)"
+            startingLineNumber = "131"
+            endingLineNumber = "131"
+            landmarkName = "saveRepository(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -78,9 +78,9 @@
             filePath = "ArchivesAndSerialization/Services/Services.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "147"
-            endingLineNumber = "147"
-            landmarkName = "verifyCommitDirectory()"
+            startingLineNumber = "114"
+            endingLineNumber = "114"
+            landmarkName = "writeObject(_:toRelativePath:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -110,8 +110,8 @@
             filePath = "ArchivesAndSerialization/Services/Services.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "57"
-            endingLineNumber = "57"
+            startingLineNumber = "82"
+            endingLineNumber = "82"
             landmarkName = "fetchCommit(withID:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -190,8 +190,8 @@
             filePath = "ArchivesAndSerialization/Services/Services.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "212"
-            endingLineNumber = "212"
+            startingLineNumber = "179"
+            endingLineNumber = "179"
             landmarkName = "removeCommit(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -206,25 +206,9 @@
             filePath = "ArchivesAndSerialization/ViewControllers/CommitsViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "173"
-            endingLineNumber = "173"
+            startingLineNumber = "169"
+            endingLineNumber = "169"
             landmarkName = "deleteAll()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "301F2B46-C30F-4514-82B8-020C96F01992"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ArchivesAndSerialization/Services/Services.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "196"
-            endingLineNumber = "196"
-            landmarkName = "oldWriteObject(_:toRelativePath:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -238,8 +222,8 @@
             filePath = "ArchivesAndSerialization/Services/Services.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "46"
-            endingLineNumber = "46"
+            startingLineNumber = "47"
+            endingLineNumber = "47"
             landmarkName = "readObjectFromRelativePath(_:)"
             landmarkType = "7">
          </BreakpointContent>

@@ -32,15 +32,18 @@ class ArchiveService {
     }
     
     //MARK: - Read
+    /*
     func oldReadObjectFromRelativePath(_ path: String) -> Any? {
         let absolutePath = absolutePathFromRelativePath(path)
         
         var object: Any?
         if FileManager.default.fileExists(atPath: absolutePath) {
+            // 'unarchiveObject(withFile:)' was deprecated in iOS 12.0: Use +unarchivedObjectOfClass:fromData:error: instead
             object = NSKeyedUnarchiver.unarchiveObject(withFile: absolutePath)
         }
         return object
     }
+ */
     
     func readObjectFromRelativePath(_ path: String) -> Data? {
         let absolutePath = absolutePathFromRelativePath(path)
@@ -95,6 +98,27 @@ class ArchiveService {
     }
     
     //MARK: - Write
+    /*
+    @discardableResult
+    func oldWriteObject(_ data: Any, toRelativePath filePath: String) -> Bool {
+        return NSKeyedArchiver.archiveRootObject(data, toFile: filePath)
+    }
+ */
+    
+    @discardableResult
+    func writeObject(_ data: Data, toRelativePath filePath: String) -> Bool { //cjm archiving
+        let url = URL(fileURLWithPath: filePath)
+        do {
+            try data.write(to: url)
+            print("Successfully wrote object to disk.")
+            return true
+        }
+        catch {
+            print("Error writing object: \(error.localizedDescription)")
+            return false
+        }
+    }
+    
     func saveRepository(_ repo: Repository) {
         let encoder = JSONEncoder()
         do {
@@ -149,27 +173,6 @@ class ArchiveService {
         }
         catch {
             print("Commit encoding failed with error: \(error.localizedDescription)")
-        }
-    }
-    
-    @discardableResult
-    func writeObject(_ data: Any, toRelativePath filePath: String) -> Bool {
-        return NSKeyedArchiver.archiveRootObject(data, toFile: filePath)
-    }
-    
-    @discardableResult
-    func oldWriteObject(_ data: Any, toRelativePath filePath: String) -> Bool { //cjm archiving
-        let url = URL(fileURLWithPath: filePath)
-        do {
-            let archivedData = try NSKeyedArchiver.archivedData(withRootObject: data,
-                                                         requiringSecureCoding: false)
-            try archivedData.write(to: url)
-            print("Successfully wrote object to disk.")
-            return true
-        }
-        catch {
-            print("Error writing object: \(error.localizedDescription)")
-            return false
         }
     }
     
