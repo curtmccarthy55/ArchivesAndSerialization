@@ -76,6 +76,26 @@ struct Author: Codable {
 //    let date: Date
     let date: String
     
+    init(name: String?, email: String?, date: String?) {
+        if let name = name {
+            self.name = name
+        } else {
+            self.name = "Unnamed Author"
+        }
+        
+        if let email = email {
+            self.email = email
+        } else {
+            self.email = "No email provided"
+        }
+        
+        if let date = date {
+            self.date = date
+        } else {
+            self.date = Date().description
+        }
+    }
+    
     enum CodingKeys: String, CodingKey {
         case name
         case email
@@ -102,6 +122,26 @@ struct Commit: Codable {
 //        let url: URL?
     let message: String
     let commentCount: Int
+    
+    init(author: Author?, message: String?, commentCount: Int?) {
+        if let author = author {
+            self.author = author
+        } else {
+            self.author = Author(name: nil, email: nil, date: nil)
+        }
+        
+        if let message = message {
+            self.message = message
+        } else {
+            self.message = "No message added."
+        }
+        
+        if let commentCount = commentCount {
+            self.commentCount = commentCount
+        } else {
+            self.commentCount = 0
+        }
+    }
     
     private enum CodingKeys: String, CodingKey {
         case author
@@ -141,9 +181,23 @@ struct GitHubCommit: Codable {
     let sha: String
     let url: URL?
     let id: String
-    /*
-     init from decoder seems to be allowing GitHubCommit to create a new id for itself
-     */
+    
+    init(info: Commit?, sha: String?, url: URL?, id: String = UUID().uuidString) {
+        if let info = info {
+            self.info = info
+        } else {
+            self.info = Commit(author: nil, message: nil, commentCount: nil)
+        }
+        
+        if let sha = sha {
+            self.sha = sha
+        } else {
+            self.sha = "No SHA available"
+        }
+        
+        self.url = url
+        self.id = id
+    }
     
     private enum CodingKeys: String, CodingKey {
         case info = "commit"
