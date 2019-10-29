@@ -8,6 +8,10 @@
 
 import Foundation
 
+enum SerializationError: Error {
+    case missingData
+}
+
 class ArchiveService {
     let reposPath = "/repositories"
     let commitsPath = "/commits"
@@ -32,7 +36,7 @@ class ArchiveService {
     }
     
     //MARK: - Read
-    /*
+    /* Formerly used, now deprecated, read function.
     func oldReadObjectFromRelativePath(_ path: String) -> Any? {
         let absolutePath = absolutePathFromRelativePath(path)
         
@@ -56,49 +60,49 @@ class ArchiveService {
         return data
     }
     
-    func fetchRepository() -> Data? {
-           guard let data = readObjectFromRelativePath(reposPath) else {
-               return nil
-           }
-           return data
-           
-           /*
-           let unarchived = readObjectFromRelativePath(reposPath)
-           
-           if let data = unarchived as? Data {
-               return data
-           } else {
-               let encoder = JSONEncoder()
-               do {
-                   let data = try encoder.encode(Repository())
-                   return data
-               }
-               catch {
-                   print("failed to return data for a Repository instance.")
-                   return nil
-               }
-           }
-    */
-       }
+    func fetchRepository() throws -> Repository { //cjm read repository
+        guard let data = readObjectFromRelativePath(reposPath) else {
+            print("Repository data not found.")
+            throw SerializationError.missingData
+        }
+        do {
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            
+            let repo = try decoder.decode(Repository.self, from: data)
+            print("Successfully fetched Repository.")
+            return repo
+        }
+        catch {
+            throw error
+        }
+    }
     
-    func fetchCommit(withID id: String) -> Data {
+    func fetchCommit(withID id: String) throws -> GitHubCommit {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        
         guard let data = readObjectFromRelativePath(commitsPath + "/" + id) else {
-            return jsons.randomElement()!
+            let data = jsons.randomElement()!
+            return try! decoder.decode(GitHubCommit.self, from: data)
         }
-        return data
         
-        /* replacing with above
-        let unarchived = readObjectFromRelativePath(commitsPath + "/" + id)
-        
-        if let data = unarchived as? Data {
-            return data
+        do {
+            return try decoder.decode(GitHubCommit.self, from: data)
         }
-        return jsons.randomElement()!
- */
+        catch {
+            throw error
+        }
+        
+        
+//        guard let data = readObjectFromRelativePath(commitsPath + "/" + id) else {
+//            return jsons.randomElement()!
+//        }
+//        return data
     }
     
     //MARK: - Write
-    /*
+    /* Formerly used, now deprecated, write method.
     @discardableResult
     func oldWriteObject(_ data: Any, toRelativePath filePath: String) -> Bool {
         return NSKeyedArchiver.archiveRootObject(data, toFile: filePath)
@@ -106,11 +110,12 @@ class ArchiveService {
  */
     
     @discardableResult
-    func writeObject(_ data: Data, toRelativePath filePath: String) -> Bool { //cjm archiving
+    func writeObject(_ data: Data, toRelativePath relativePath: String) -> Bool { //cjm archiving
+        let filePath = absolutePathFromRelativePath(relativePath)
         let url = URL(fileURLWithPath: filePath)
         do {
             try data.write(to: url)
-            print("Successfully wrote object to disk.")
+            print("Successfully wrote object to path: \(filePath).")
             return true
         }
         catch {
@@ -123,9 +128,7 @@ class ArchiveService {
         let encoder = JSONEncoder()
         do {
             let repoData = try encoder.encode(repo)
-            let filePath = absolutePathFromRelativePath(reposPath)
-            print("repository save path: \(filePath)")
-            let success = writeObject(repoData, toRelativePath: filePath)
+            let success = writeObject(repoData, toRelativePath: reposPath)
             print("Repository write: \(success ? "successful" : "failed").")
         }
         catch {
@@ -154,13 +157,13 @@ class ArchiveService {
         let encoder = JSONEncoder()
         do {
             let commitData = try encoder.encode(commit)
-            let filePath = absolutePathFromRelativePath(commitsPath) + "/" + commit.id
+            let filePath = commitsPath + "/" + commit.id
             print("commit save path: \(filePath)")
             let success = writeObject(commitData, toRelativePath: filePath)
             print("Commit write: \(success ? "successful" : "failed").")
         }
         catch {
-            print(error.localizedDescription)
+            print("encode GitHubCommit failed with error: \(error.localizedDescription)")
         }
     }
     
@@ -168,8 +171,7 @@ class ArchiveService {
         let encoder = JSONEncoder()
         do {
             let commitData = try encoder.encode(commits)
-            let filePath = absolutePathFromRelativePath(commitsPath)
-            writeObject(commitData, toRelativePath: filePath)
+            writeObject(commitData, toRelativePath: commitsPath)
         }
         catch {
             print("Commit encoding failed with error: \(error.localizedDescription)")

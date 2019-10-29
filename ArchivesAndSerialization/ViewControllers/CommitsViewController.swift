@@ -31,13 +31,11 @@ class CommitsViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        repository = prepRepository()
+        repository = fetchRepository() //cjm read repository
         if let ids = repository?.commitIDs, ids.count > 0 {
-            let decoder = JSONDecoder()
             for id in ids {
                 do {
-                    let commitData = ArchiveService.shared.fetchCommit(withID: id)
-                    let commit = try decoder.decode(GitHubCommit.self, from: commitData)
+                    let commit = try ArchiveService.shared.fetchCommit(withID: id)
                     repository?.addCommit(commit)
                 }
                 catch {
@@ -48,51 +46,7 @@ class CommitsViewController: UIViewController {
         }
     }
     
-    func prepRepository() -> Repository {
-        if let data = fetchRepositoryData() {
-            return decodeRepositoryData(data)
-        } else {
-            return Repository()
-        }
-    }
-    
-    func decodeRepositoryData(_ data: Data) -> Repository {
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        
-        do {
-            return try decoder.decode(Repository.self, from: data)
-        }
-        catch DecodingError.keyNotFound(let key, let context) {
-            // case url = "SUBTLE TYPO", but the json key for the url value is "url"
-            // when url's type is URL (non-optional), this prints 'Missing key: CodingKeys(stringValue: "SUBTLE TYPO", intValue: nil)'
-            // when url's type is URL?, url's value is set to nil
-            print("Missing key: \(key)")
-            print("Debug description: \(context.debugDescription)")
-            return Repository()
-        }
-        catch DecodingError.valueNotFound(let type, let context) {
-            // indicates that we tried to decode something of this type, but in fact found nil.
-            print("type == \(type)")
-            print("context == \(context)")
-            return Repository()
-        }
-        catch DecodingError.typeMismatch(let type, let context) {
-            // indicates that we tried to decode something of this type, but something else was found in the payload.  For example, you tried to decode a string, but instead found an int.
-            print("type == \(type)")
-            print("context == \(context)")
-            return Repository()
-        }
-        catch {
-            let alert = UIAlertController(title: "Unable to Fetch Repository",
-                                        message: error.localizedDescription,
-                                 preferredStyle: .alert)
-            let dismiss = UIAlertAction(title: "Dismiss", style: .default)
-            alert.addAction(dismiss)
-            present(alert, animated: true)
-            return Repository()
-        }
-    }
+    //MARK: - Button Actions
     
     @IBAction func tappedSave() {
         saveData()
@@ -140,12 +94,42 @@ class CommitsViewController: UIViewController {
     }
 
     //MARK: - Read/Write
-    func fetchRepositoryData() -> Data? {
-        return ArchiveService.shared.fetchRepository()
+    func fetchRepository() -> Repository {
+        do {
+            return try ArchiveService.shared.fetchRepository()
+        }
+        catch SerializationError.missingData {
+            print("ArchiveService was unable to fetch Repository data.")
+        }
+        catch DecodingError.keyNotFound(let key, let context) {
+            // case url = "SUBTLE TYPO", but the json key for the url value is "url"
+            // when url's type is URL (non-optional), this prints 'Missing key: CodingKeys(stringValue: "SUBTLE TYPO", intValue: nil)'
+            // when url's type is URL?, url's value is set to nil
+            print("Missing key: \(key)")
+            print("Debug description: \(context.debugDescription)")
+        }
+        catch DecodingError.valueNotFound(let type, let context) {
+            // indicates that we tried to decode something of this type, but in fact found nil.
+            print("type == \(type)")
+            print("context == \(context)")
+        }
+        catch DecodingError.typeMismatch(let type, let context) {
+            // indicates that we tried to decode something of this type, but something else was found in the payload.  For example, you tried to decode a string, but instead found an int.
+            print("type == \(type)")
+            print("context == \(context)")
+        }
+        catch {
+            let alert = UIAlertController(title: "Unable to Fetch Repository",
+                                        message: error.localizedDescription,
+                                 preferredStyle: .alert)
+            let dismiss = UIAlertAction(title: "Dismiss", style: .default)
+            alert.addAction(dismiss)
+            present(alert, animated: true)
+        }
+        return Repository()
     }
 
     func saveData() {
-//        ArchiveService.shared.saveCommits(commits)
         if let commits = repository?.commits {
             ArchiveService.shared.saveRepository(repository!)
             for commit in commits {
