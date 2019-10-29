@@ -60,7 +60,7 @@ class ArchiveService {
         return data
     }
     
-    func fetchRepository() throws -> Repository { //cjm read repository
+    func fetchRepository() throws -> Repository {
         guard let data = readObjectFromRelativePath(reposPath) else {
             print("Repository data not found.")
             throw SerializationError.missingData
@@ -93,12 +93,6 @@ class ArchiveService {
         catch {
             throw error
         }
-        
-        
-//        guard let data = readObjectFromRelativePath(commitsPath + "/" + id) else {
-//            return jsons.randomElement()!
-//        }
-//        return data
     }
     
     //MARK: - Write
@@ -110,7 +104,7 @@ class ArchiveService {
  */
     
     @discardableResult
-    func writeObject(_ data: Data, toRelativePath relativePath: String) -> Bool { //cjm archiving
+    func writeObject(_ data: Data, toRelativePath relativePath: String) -> Bool {
         let filePath = absolutePathFromRelativePath(relativePath)
         let url = URL(fileURLWithPath: filePath)
         do {
@@ -193,7 +187,7 @@ class ArchiveService {
         }
     }
     
-    func removeData(at url: URL?) { //cjm pdf viewer
+    func removeData(at url: URL?) {
         if let confirmedURL = url {
             if FileManager.default.fileExists(atPath: confirmedURL.absoluteString) {
                 do {

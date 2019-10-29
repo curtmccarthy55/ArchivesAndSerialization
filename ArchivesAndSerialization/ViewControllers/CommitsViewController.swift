@@ -14,8 +14,7 @@ class CommitsViewController: UIViewController {
     //MARK: Properties
     @IBOutlet weak var commitsTable: UITableView!
     @IBOutlet weak var saveButton: UIBarButtonItem!
-    
-//    var commits: [GitHubCommit] = []
+
     var repository: Repository?
     
     //MARK: - Presenting Data
@@ -25,13 +24,12 @@ class CommitsViewController: UIViewController {
         
         let cellNib = UINib(nibName: "CommitsTableViewCell", bundle: nil)
         commitsTable.register(cellNib, forCellReuseIdentifier: REUSE_IDENTIFIER)
-        // Do any additional setup after loading the view.
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        repository = fetchRepository() //cjm read repository
+        repository = fetchRepository() 
         if let ids = repository?.commitIDs, ids.count > 0 {
             for id in ids {
                 do {
@@ -174,22 +172,12 @@ extension CommitsViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        var cell = tableView.dequeueReusableCell(withIdentifier: REUSE_IDENTIFIER, for: indexPath) as! CommitsTableViewCell
-        setUpCell(&cell, at: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: REUSE_IDENTIFIER,
+                                                            for: indexPath) as! CommitsTableViewCell
+        let commit = repository?.commits[indexPath.row]
+        cell.configure(withCommit: commit)
         
         return cell
-    }
-    
-    func setUpCell(_ cell: inout CommitsTableViewCell, at indexPath: IndexPath) {
-        guard let commit = repository?.commits[indexPath.row] else {
-            cell.authorLabel.text = "Author Not Found"
-            cell.messageLabel.text = "Message Not Found"
-            cell.shaLabel.text = "SHA Not Found"
-            return
-        }
-        cell.authorLabel.text = commit.info.author.name
-        cell.messageLabel.text = commit.info.message
-        cell.shaLabel.text = "SHA: \(commit.sha.prefix(10))"
     }
 }
 

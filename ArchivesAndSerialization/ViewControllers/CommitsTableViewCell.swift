@@ -14,15 +14,16 @@ class CommitsTableViewCell: UITableViewCell {
     @IBOutlet weak var messageLabel: UILabel!
     @IBOutlet weak var shaLabel: UILabel!
     
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        // Initialization code
-    }
-
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
+    func configure(withCommit commit: GitHubCommit?) {
+        guard let commit = commit else {
+            authorLabel.text = "Author Not Found"
+            messageLabel.text = "Message Not Found"
+            shaLabel.text = "SHA Not Found"
+            return
+        }
+        authorLabel.text = commit.info.author.name
+        messageLabel.text = commit.info.message
+        shaLabel.text = "SHA: \(commit.sha.prefix(10))"
     }
     
 }
