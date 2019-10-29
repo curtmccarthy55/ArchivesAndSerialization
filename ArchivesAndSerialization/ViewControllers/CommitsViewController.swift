@@ -17,7 +17,7 @@ class CommitsViewController: UIViewController {
 
     var repository: Repository?
     
-    //MARK: - Presenting Data
+    //MARK: - Scene Set Up
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,7 +37,7 @@ class CommitsViewController: UIViewController {
                     repository?.addCommit(commit)
                 }
                 catch {
-                    print("unable to fetch commit with ID: \(id)")
+                    handleError(error)
                 }
             }
             commitsTable.reloadData()
@@ -60,30 +60,8 @@ class CommitsViewController: UIViewController {
             repository?.addCommit(commit.first!)
             commitsTable.reloadData()
         }
-        catch DecodingError.keyNotFound(let key, let context) {
-            // case url = "SUBTLE TYPO", but the json key for the url value is "url"
-            // when url's type is URL (non-optional), this prints 'Missing key: CodingKeys(stringValue: "SUBTLE TYPO", intValue: nil)'
-            // when url's type is URL?, url's value is set to nil
-            print("Missing key: \(key)")
-            print("Debug description: \(context.debugDescription)")
-        }
-        catch DecodingError.valueNotFound(let type, let context) {
-            // indicates that we tried to decode something of this type, but in fact found nil.
-            print("type == \(type)")
-            print("context == \(context)")
-        }
-        catch DecodingError.typeMismatch(let type, let context) {
-            // indicates that we tried to decode something of this type, but something else was found in the payload.  For example, you tried to decode a string, but instead found an int.
-            print("type == \(type)")
-            print("context == \(context)")
-        }
         catch {
-            let alert = UIAlertController(title: "Unable to Fetch Commits",
-                                        message: error.localizedDescription,
-                                 preferredStyle: .alert)
-            let dismiss = UIAlertAction(title: "Dismiss", style: .default)
-            alert.addAction(dismiss)
-            present(alert, animated: true)
+            handleError(error)
         }
     }
     
@@ -91,42 +69,18 @@ class CommitsViewController: UIViewController {
         deleteAll()
     }
 
-    //MARK: - Read/Write
+    //MARK: - Read
     func fetchRepository() -> Repository {
         do {
             return try ArchiveService.shared.fetchRepository()
         }
-        catch SerializationError.missingData {
-            print("ArchiveService was unable to fetch Repository data.")
-        }
-        catch DecodingError.keyNotFound(let key, let context) {
-            // case url = "SUBTLE TYPO", but the json key for the url value is "url"
-            // when url's type is URL (non-optional), this prints 'Missing key: CodingKeys(stringValue: "SUBTLE TYPO", intValue: nil)'
-            // when url's type is URL?, url's value is set to nil
-            print("Missing key: \(key)")
-            print("Debug description: \(context.debugDescription)")
-        }
-        catch DecodingError.valueNotFound(let type, let context) {
-            // indicates that we tried to decode something of this type, but in fact found nil.
-            print("type == \(type)")
-            print("context == \(context)")
-        }
-        catch DecodingError.typeMismatch(let type, let context) {
-            // indicates that we tried to decode something of this type, but something else was found in the payload.  For example, you tried to decode a string, but instead found an int.
-            print("type == \(type)")
-            print("context == \(context)")
-        }
         catch {
-            let alert = UIAlertController(title: "Unable to Fetch Repository",
-                                        message: error.localizedDescription,
-                                 preferredStyle: .alert)
-            let dismiss = UIAlertAction(title: "Dismiss", style: .default)
-            alert.addAction(dismiss)
-            present(alert, animated: true)
+            handleError(error)
         }
         return Repository()
     }
 
+    //MARK: - Write
     func saveData() {
         if let commits = repository?.commits {
             ArchiveService.shared.saveRepository(repository!)
@@ -136,6 +90,7 @@ class CommitsViewController: UIViewController {
         }
     }
     
+    //MARK: - Delete
     func deleteCommitAt(indexPath: IndexPath) {
         guard let doomedCommit = repository?.commits[indexPath.row] else { return }
         repository?.removeCommitAt(index: indexPath.row)
@@ -156,8 +111,37 @@ class CommitsViewController: UIViewController {
         ArchiveService.shared.saveRepository(repository!)
         commitsTable.reloadData()
     }
+    
+    func handleError(_ error: Error) {
+        switch error {
+        case SerializationError.missingData:
+            print("ArchiveService was unable to fetch Repository data.")
+        case DecodingError.keyNotFound(let key, let context) :
+            // case url = "SUBTLE TYPO", but the json key for the url value is "url"
+            // when url's type is URL (non-optional), this prints 'Missing key: CodingKeys(stringValue: "SUBTLE TYPO", intValue: nil)'
+            // when url's type is URL?, url's value is set to nil
+            print("Missing key: \(key)")
+            print("Debug description: \(context.debugDescription)")
+        case DecodingError.valueNotFound(let type, let context):
+            // indicates that we tried to decode something of this type, but in fact found nil.
+            print("type == \(type)")
+            print("context == \(context)")
+        case DecodingError.typeMismatch(let type, let context):
+            // indicates that we tried to decode something of this type, but something else was found in the payload.  For example, you tried to decode a string, but instead found an int.
+            print("type == \(type)")
+            print("context == \(context)")
+        default:
+            let alert = UIAlertController(title: "Unknown Error Occurred",
+                                        message: error.localizedDescription,
+                                 preferredStyle: .alert)
+            let dismiss = UIAlertAction(title: "Dismiss", style: .default)
+            alert.addAction(dismiss)
+            present(alert, animated: true)
+        }
+    }
 }
 
+//MARK: - TableView Delegate
 extension CommitsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         deleteCommitAt(indexPath: indexPath)
@@ -166,6 +150,7 @@ extension CommitsViewController: UITableViewDelegate {
     }
 }
 
+//MARK: - TableView DataSource
 extension CommitsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return repository?.commits.count ?? 0
